@@ -1,13 +1,9 @@
 {
-	"bindings": [
+    "groups": [
         {
-        	"ircEvent": "PRIVMSG", "method": "newURI", "regex": "^http://.*"
-        	},
-        {
-        	"ircEvent": "PRIVMSG", "method": "deleteURI", "regex": "^delete.*"
-        	},
-        {
-        	"ircEvent": "PRIVMSG", "method": "randomURI", "regex": "^random.*"
+            "lat": 39.61, 
+            "long": -105.02,
+            "title": "Yopi"
         }
     ]
-};
+}
