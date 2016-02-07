@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css"/>
     <link rel="stylesheet" href="css/style.css"/>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+    <script src='https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 </head>
 <body>
@@ -29,7 +29,10 @@
 <div class="pure-g">
     <div class="pure-u-1-2 l-box" id="feed">
         <h2>Trouver un groupe local</h2>
-        <h3></h3>
+
+        <h3 class="title"></h3>
+
+        <p class="description"></p>
     </div>
     <div class="pure-u-1-2 l-box" id="map">
 
@@ -41,50 +44,55 @@
 </div>
 
 <script>
-    var domelem = document.createElement('a');
-    domelem.href = "#point_555_444";
-    domelem.innerHTML = "Click me";
-    domelem.onclick = function () {
-        alert(this.href);
-        // do whatever else you want to do - open accordion etc
+
+    L.mapbox.accessToken = 'pk.eyJ1IjoibmhlZnRpIiwiYSI6ImNpazgxeWVwdTAwMDd2Y2tvd2phMHBvaTIifQ.HfkqiDG3aFRNcbArnKhaag';
+
+    var map = L.mapbox.map('map', 'mapbox.streets')
+            .setView([39.12367, -76.81229], 9);
+
+    var myLayer = L.mapbox.featureLayer().addTo(map);
+
+    // The GeoJSON representing the two point features
+    var geojson = {
+        type: 'GroupCollection',
+        features: [
+            {
+                type: 'Feature',
+                properties: {
+                    'title': 'Washington, D.C.',
+                    'url': 'http://en.wikipedia.org/wiki/Washington,_D.C.'
+                },
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-77.03201, 38.90065]
+                },
+                description: 'Petite description du groupe local de DC'
+            },
+            {
+                type: 'Feature',
+                properties: {
+                    'title': 'Baltimore, MD',
+                    'url': 'http://en.wikipedia.org/wiki/Baltimore'
+                },
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-76.60767, 39.28755]
+                },
+                description: 'Baltimore rocks!'
+            }
+        ]
     };
-    var cities = new L.LayerGroup();
 
-    jQuery.getJSON('data.json', function (data) {
-        for (var i = 0; i < data.groups.length; i++) {
-            group = data.groups[i];
-            console.log(group);
-            L.marker([group.lat, group.long])
-                    .bindPopup(group.title)
-                    .addTo(cities);
-        }
-
-        // Display the data set
-        $('#data-set').append(JSON.stringify(data.groups, null, 2));
+    // Pass features and a custom factory function to the map
+    myLayer.setGeoJSON(geojson);
+    myLayer.on('click', function (e) {
+        $('#feed .title').html(e.layer.feature.properties.title);
+        $('#feed .description').html(e.layer.feature.description);
     });
 
-    var mbAttr = 'MFRB';
-    var mbUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibmhlZnRpIiwiYSI6ImNpazgxeWVwdTAwMDd2Y2tvd2phMHBvaTIifQ.HfkqiDG3aFRNcbArnKhaag';
+    // Display the data set
+    $('#data-set').append(JSON.stringify(geojson.features, null, 2));
 
-    var grayscale = L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr}),
-            streets = L.tileLayer(mbUrl, {id: 'mapbox.streets', attribution: mbAttr});
-
-    var map = L.map('map', {
-        center: [39.73, -104.99],
-        zoom: 10,
-        layers: [grayscale, cities]
-    });
-
-    var baseLayers = {
-        "Grayscale": grayscale,
-        "Streets": streets
-    };
-
-    var overlays = {
-        "Cities": cities
-    };
-
-    L.control.layers(baseLayers, overlays).addTo(map);
 </script>
 </body>
 </html>
